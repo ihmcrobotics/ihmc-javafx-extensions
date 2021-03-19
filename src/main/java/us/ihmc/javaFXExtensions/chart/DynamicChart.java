@@ -1,13 +1,12 @@
 package us.ihmc.javaFXExtensions.chart;
 
-import com.sun.javafx.scene.control.skin.Utils;
+import com.sun.javafx.util.Utils;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.chart.Chart;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -169,7 +168,7 @@ public abstract class DynamicChart extends Region
       {
          boolean shouldShowLegend = true;
          double legendHeight = snapSize(legend.prefHeight(width - left - right));
-         double legendWidth = Utils.boundedSize(snapSize(legend.prefWidth(legendHeight)), 0, width - left - right);
+         double legendWidth = Utils.clamp(snapSize(legend.prefWidth(legendHeight)), 0, width - left - right);
          double legendLeft = left + (width - left - right - legendWidth) / 2;
          double legendTop = height - bottom - legendHeight;
          legend.resizeRelocate(legendLeft, legendTop, legendWidth, legendHeight);
