@@ -52,8 +52,8 @@ public abstract class DynamicXYChart extends DynamicChart
       updateAxisRange();
 
       // snap top and left to pixels
-      top = snapPosition(top);
-      left = snapPosition(left);
+      top = snapPositionY(top);
+      left = snapPositionX(left);
       // try and work out width and height of axises
       double xAxisWidth = 0;
       double xAxisHeight = 30; // guess x axis height to start with
@@ -61,9 +61,9 @@ public abstract class DynamicXYChart extends DynamicChart
       double yAxisHeight = 0;
       for (int count = 0; count < 5; count++)
       {
-         yAxisHeight = Math.max(0, snapSize(height - xAxisHeight));
+         yAxisHeight = Math.max(0, snapSizeY(height - xAxisHeight));
          yAxisWidth = yAxis.prefWidth(yAxisHeight);
-         xAxisWidth = Math.max(0, snapSize(width - yAxisWidth));
+         xAxisWidth = Math.max(0, snapSizeX(width - yAxisWidth));
          double newXAxisHeight = xAxis.prefHeight(xAxisWidth);
          if (newXAxisHeight == xAxisHeight)
             break;

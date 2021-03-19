@@ -35,9 +35,9 @@ public abstract class DynamicChart extends Region
          final double right = snappedRightInset();
          final double width = getWidth();
          final double height = getHeight();
-         final double contentWidth = snapSize(width - (left + right));
-         final double contentHeight = snapSize(height - (top + bottom));
-         layoutChartChildren(snapPosition(top), snapPosition(left), contentWidth, contentHeight);
+         final double contentWidth = snapSizeX(width - (left + right));
+         final double contentHeight = snapSizeY(height - (top + bottom));
+         layoutChartChildren(snapPositionY(top), snapPositionX(left), contentWidth, contentHeight);
       }
    };
 
@@ -167,8 +167,8 @@ public abstract class DynamicChart extends Region
       if (legend != null)
       {
          boolean shouldShowLegend = true;
-         double legendHeight = snapSize(legend.prefHeight(width - left - right));
-         double legendWidth = Utils.clamp(snapSize(legend.prefWidth(legendHeight)), 0, width - left - right);
+         double legendHeight = snapSizeY(legend.prefHeight(width - left - right));
+         double legendWidth = Utils.clamp(snapSizeX(legend.prefWidth(legendHeight)), 0, width - left - right);
          double legendLeft = left + (width - left - right - legendWidth) / 2;
          double legendTop = height - bottom - legendHeight;
          legend.resizeRelocate(legendLeft, legendTop, legendWidth, legendHeight);
