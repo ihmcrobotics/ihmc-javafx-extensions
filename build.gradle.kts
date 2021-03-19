@@ -6,7 +6,7 @@ plugins {
 
 ihmc {
    group = "us.ihmc"
-   version = "0.0.1"
+   version = "15-0.0.1"
    vcsUrl = "https://github.com/ihmcrobotics/ihmc-javafx-extensions"
    openSource = true
    
@@ -19,7 +19,5 @@ mainDependencies {
    api(ihmc.javaFXModule("base", javaFXVersion))
    api(ihmc.javaFXModule("controls", javaFXVersion))
    api(ihmc.javaFXModule("graphics", javaFXVersion))
-//   api(ihmc.javaFXModule("fxml", javaFXVersion))
-//   api(ihmc.javaFXModule("swing", javaFXVersion))
 }
 
