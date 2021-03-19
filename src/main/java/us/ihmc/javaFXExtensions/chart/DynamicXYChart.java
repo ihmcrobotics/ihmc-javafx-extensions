@@ -12,15 +12,14 @@ public abstract class DynamicXYChart extends DynamicChart
    private final NumberAxis yAxis;
 
    private final Region plotBackground = new Region();
-   private final Group plotArea = new Group()
+   protected final Group plotContent = new Group()
    {
       @Override
       public void requestLayout()
       {
       } // suppress layout requests
    };
-   protected final Group plotContent = new Group();
-   private final Rectangle plotAreaClip = new Rectangle();
+   private final Rectangle plotContentClip = new Rectangle();
 
    public DynamicXYChart(NumberAxis xAxis, NumberAxis yAxis)
    {
@@ -28,22 +27,18 @@ public abstract class DynamicXYChart extends DynamicChart
       this.yAxis = yAxis;
 
       // add initial content to chart content
-      getChartChildren().addAll(plotBackground, plotArea, xAxis, yAxis);
-      // We don't want plotArea or plotContent to autoSize or do layout
-      plotArea.setAutoSizeChildren(false);
+      getChartChildren().addAll(plotBackground, plotContent, xAxis, yAxis);
+      // We don't want plotContent to autoSize or do layout
       plotContent.setAutoSizeChildren(false);
       // setup clipping on plot area
-      plotAreaClip.setSmooth(false);
-      plotArea.setClip(plotAreaClip);
-      // add children to plot area
-      plotArea.getChildren().addAll(plotContent);
+      plotContentClip.setSmooth(false);
+      plotContent.setClip(plotContentClip);
       // setup css style classes
       plotContent.getStyleClass().setAll("plot-content");
       plotBackground.getStyleClass().setAll("chart-plot-background");
       plotBackground.paddingProperty().set(new Insets(0));
       // mark plotContent as unmanaged as its preferred size changes do not effect our layout
       plotContent.setManaged(false);
-      plotArea.setManaged(false);
    }
 
    @Override
@@ -94,10 +89,10 @@ public abstract class DynamicXYChart extends DynamicChart
       // layout plot background
       plotBackground.resizeRelocate(left, top, xAxisWidth, yAxisHeight);
       // update clip
-      plotAreaClip.setX(left);
-      plotAreaClip.setY(top);
-      plotAreaClip.setWidth(xAxisWidth + 1);
-      plotAreaClip.setHeight(yAxisHeight + 1);
+      plotContentClip.setX(left);
+      plotContentClip.setY(top);
+      plotContentClip.setWidth(xAxisWidth + 1);
+      plotContentClip.setHeight(yAxisHeight + 1);
       // position plot group, its origin is the bottom left corner of the plot area
       plotContent.setLayoutX(left);
       plotContent.setLayoutY(top);
