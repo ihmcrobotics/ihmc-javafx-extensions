@@ -240,14 +240,6 @@ public class InvisibleNumberAxis extends Region
     * for test purposes
     */
    double dataMaxValue;
-   // -------------- PRIVATE PROPERTIES -------------------------------------------------------------------------------
-
-   /**
-    * The current value for the lowerBound of this axis (minimum value). This may be the same as
-    * lowerBound or different. It is used by NumberAxis to animate the lowerBound from the old value to
-    * the new value.
-    */
-   private final DoubleProperty currentLowerBound = new SimpleDoubleProperty(this, "currentLowerBound");
 
    // -------------- PUBLIC PROPERTIES --------------------------------------------------------------------------------
 
@@ -367,29 +359,6 @@ public class InvisibleNumberAxis extends Region
    // -------------- PROTECTED METHODS --------------------------------------------------------------------------------
 
    /**
-    * This calculates the upper and lower bound based on the data provided to invalidateRange() method.
-    * This must not affect the state of the axis. Any results of the auto-ranging should be returned in
-    * the range object. This will we passed to setRange() if it has been decided to adopt this range
-    * for this axis.
-    *
-    * @param length The length of the axis in screen coordinates
-    * @return Range information, this is implementation dependent
-    */
-   private final double[] autoRange(double length)
-   {
-      // guess a sensible starting size for label size, that is approx 2 lines vertically or 2 charts horizontally
-      if (isAutoRanging())
-      {
-         // guess a sensible starting size for label size, that is approx 2 lines vertically or 2 charts horizontally
-         return autoRange(dataMinValue, dataMaxValue, length);
-      }
-      else
-      {
-         return getRange();
-      }
-   }
-
-   /**
     * Calculates new scale for this axis. This should not affect any properties of this axis.
     *
     * @param length     The display length of the axis
@@ -427,8 +396,6 @@ public class InvisibleNumberAxis extends Region
       {
          // calculate new scale
          setScale(calculateNewScale(length, getLowerBound(), getUpperBound()));
-         // update current lower bound
-         currentLowerBound.set(getLowerBound());
       }
       // we have done all auto calcs, let InvisibleNumberAxis position major tickmarks
 
@@ -437,21 +404,9 @@ public class InvisibleNumberAxis extends Region
       boolean lengthDiffers = oldLength != length;
       if (lengthDiffers || rangeInvalid)
       {
-         // get range
-         double[] range;
          if (isAutoRanging())
-         {
-            // auto range
-            range = autoRange(length);
-            // set current range to new range
-            setRange(range[0], range[1], range[2]);
-         }
-         else
-         {
-            range = getRange();
-         }
+            autoRange(dataMinValue, dataMaxValue, length);
 
-         // mark all done
          oldLength = length;
          rangeValid = true;
       }
@@ -490,15 +445,60 @@ public class InvisibleNumberAxis extends Region
    }
 
    /**
+    * Called when the data has changed and the range may not be valid anymore. This is only called by
+    * the chart if isAutoRanging() returns true. If we are auto ranging it will cause layout to be
+    * requested and auto ranging to happen on next layout pass.
+    *
+    * @param data The current set of all data that needs to be plotted on this axis
+    */
+   public void invalidateRange(double[] data)
+   {
+      if (data.length == 0)
+      {
+         dataMaxValue = getUpperBound();
+         dataMinValue = getLowerBound();
+      }
+      else
+      {
+         dataMinValue = Double.MAX_VALUE;
+         // We need to init to the lowest negative double (which is NOT Double.MIN_VALUE)
+         // in order to find the maximum (positive or negative)
+         dataMaxValue = -Double.MAX_VALUE;
+      }
+      for (double dataValue : data)
+      {
+         dataMinValue = Math.min(dataMinValue, dataValue);
+         dataMaxValue = Math.max(dataMaxValue, dataValue);
+      }
+      invalidateRange();
+      requestAxisLayout();
+   }
+
+   /**
+    * Called when the data has changed and the range may not be valid anymore. This is only called by
+    * the chart if isAutoRanging() returns true. If we are auto ranging it will cause layout to be
+    * requested and auto ranging to happen on next layout pass.
+    *
+    * @param data The current set of all data that needs to be plotted on this axis
+    */
+   public void invalidateRange(double minValue, double maxValue)
+   {
+      dataMinValue = minValue;
+      dataMaxValue = maxValue;
+      invalidateRange();
+      requestAxisLayout();
+   }
+
+   /**
     * Gets the display position along this axis for a given value. If the value is not in the current
     * range, the returned value will be an extrapolation of the display position.
     *
     * @param value The data value to work out display position for
     * @return display position
     */
-   public double getDisplayPosition(Number value)
+   public double getDisplayPosition(double value)
    {
-      return offset + (value.doubleValue() - currentLowerBound.get()) * getScale();
+      return offset + (value - lowerBound.get()) * getScale();
    }
 
    /**
@@ -508,9 +508,9 @@ public class InvisibleNumberAxis extends Region
     * @param displayPosition A pixel position on this axis
     * @return the nearest data value to the given pixel position or null if not on axis;
     */
-   public Number getValueForDisplay(double displayPosition)
+   public double getValueForDisplay(double displayPosition)
    {
-      return toRealValue((displayPosition - offset) / getScale() + currentLowerBound.get());
+      return (displayPosition - offset) / getScale() + lowerBound.get();
    }
 
    /**
@@ -532,38 +532,38 @@ public class InvisibleNumberAxis extends Region
     * @param value The value to check if its on axis
     * @return true if the given value is plottable on this axis
     */
-   public boolean isValueOnAxis(Number value)
+   public boolean isValueOnAxis(double value)
    {
-      final double num = value.doubleValue();
-      return num >= getLowerBound() && num <= getUpperBound();
-   }
-
-   /**
-    * All axis values must be representable by some numeric value. This gets the numeric value for a
-    * given data value.
-    *
-    * @param value The data value to convert
-    * @return Numeric value for the given data value
-    */
-   public double toNumericValue(Number value)
-   {
-      return value == null ? Double.NaN : value.doubleValue();
-   }
-
-   /**
-    * All axis values must be representable by some numeric value. This gets the data value for a given
-    * numeric value.
-    *
-    * @param value The numeric value to convert
-    * @return Data value for given numeric value
-    */
-   public Number toRealValue(double value)
-   {
-      //noinspection unchecked
-      return Double.valueOf(value);
+      return value >= getLowerBound() && value <= getUpperBound();
    }
 
    // -------------- PUBLIC PROPERTIES --------------------------------------------------------------------------------
+
+   /** Padding expressed in percent of the actual data range. */
+   private DoubleProperty rangePadding = new SimpleDoubleProperty(this, "rangePadding", 0.05)
+   {
+      @Override
+      protected void invalidated()
+      {
+         invalidateRange();
+         requestAxisLayout();
+      };
+   };
+
+   public double getRangePadding()
+   {
+      return rangePadding.get();
+   }
+
+   public void setRangePadding(double rangePadding)
+   {
+      this.rangePadding.set(rangePadding);
+   }
+
+   public DoubleProperty rangePaddingProperty()
+   {
+      return rangePadding;
+   }
 
    /**
     * When true zero is always included in the visible range. This only has effect if auto-ranging is
@@ -639,40 +639,14 @@ public class InvisibleNumberAxis extends Region
    // -------------- PROTECTED METHODS --------------------------------------------------------------------------------
 
    /**
-    * Called to get the current axis range.
-    *
-    * @return A range object that can be passed to setRange() and calculateTickValues()
-    */
-   private double[] getRange()
-   {
-      return new double[] {getLowerBound(), getUpperBound(), getScale()};
-   }
-
-   /**
-    * Called to set the current axis range to the given range. If isAnimating() is true then this
-    * method should animate the range to the new range.
-    *
-    * @param range   A range object returned from autoRange()
-    * @param animate If true animate the change in range
-    */
-   private void setRange(double lowerBound, double upperBound, double scale)
-   {
-      setLowerBound(lowerBound);
-      setUpperBound(upperBound);
-      currentLowerBound.set(lowerBound);
-      setScale(scale);
-   }
-
-   /**
     * Called to set the upper and lower bound and anything else that needs to be auto-ranged.
     *
     * @param minValue  The min data value that needs to be plotted on this axis
     * @param maxValue  The max data value that needs to be plotted on this axis
     * @param length    The length of the axis in display coordinates
     * @param labelSize The approximate average size a label takes along the axis
-    * @return The calculated range
     */
-   private double[] autoRange(double minValue, double maxValue, double length)
+   private void autoRange(double minValue, double maxValue, double length)
    {
       // check if we need to force zero into range
       if (isForceZeroInRange())
@@ -694,15 +668,20 @@ public class InvisibleNumberAxis extends Region
          range = 0;
       }
       // pad min and max by 2%, checking if the range is zero
-      final double paddedRange = range == 0 ? minValue == 0 ? 2 : Math.abs(minValue) * 0.02 : Math.abs(range) * 1.02;
+      final double paddedRange;
+      if (range == 0)
+         paddedRange = minValue == 0 ? 2 : Math.abs(minValue) * getRangePadding();
+      else
+         paddedRange = Math.abs(range) * (1.0 + getRangePadding());
+
       final double padding = (paddedRange - range) / 2;
       // if min and max are not zero then add padding to them
       double paddedMin = minValue - padding;
       double paddedMax = maxValue + padding;
-      // calculate new scale
-      final double newScale = calculateNewScale(length, paddedMin, paddedMax);
-      // return new range
-      return new double[] {paddedMin, paddedMax, newScale};
+
+      setLowerBound(paddedMin);
+      setUpperBound(paddedMax);
+      setScale(calculateNewScale(length, paddedMin, paddedMax));
    }
 
    // -------------- STYLESHEET HANDLING ------------------------------------------------------------------------------
