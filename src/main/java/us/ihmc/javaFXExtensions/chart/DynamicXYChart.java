@@ -1,9 +1,7 @@
 package us.ihmc.javaFXExtensions.chart;
 
-import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 
 public abstract class DynamicXYChart extends DynamicChart
@@ -11,7 +9,6 @@ public abstract class DynamicXYChart extends DynamicChart
    private final NumberAxis xAxis;
    private final NumberAxis yAxis;
 
-   private final Region plotBackground = new Region();
    protected final Group plotContent = new Group()
    {
       @Override
@@ -27,7 +24,7 @@ public abstract class DynamicXYChart extends DynamicChart
       this.yAxis = yAxis;
 
       // add initial content to chart content
-      getChartChildren().addAll(plotBackground, plotContent, xAxis, yAxis);
+      getChartChildren().addAll(plotContent, xAxis, yAxis);
       // We don't want plotContent to autoSize or do layout
       plotContent.setAutoSizeChildren(false);
       // setup clipping on plot area
@@ -35,8 +32,6 @@ public abstract class DynamicXYChart extends DynamicChart
       plotContent.setClip(plotContentClip);
       // setup css style classes
       plotContent.getStyleClass().setAll("plot-content");
-      plotBackground.getStyleClass().setAll("chart-plot-background");
-      plotBackground.paddingProperty().set(new Insets(0));
       // mark plotContent as unmanaged as its preferred size changes do not effect our layout
       plotContent.setManaged(false);
    }
@@ -86,8 +81,6 @@ public abstract class DynamicXYChart extends DynamicChart
       yAxis.layout();
       // layout plot content
       layoutPlotChildren(top, left, xAxisWidth, yAxisHeight);
-      // layout plot background
-      plotBackground.resizeRelocate(left, top, xAxisWidth, yAxisHeight);
       // update clip
       plotContentClip.setX(left);
       plotContentClip.setY(top);
