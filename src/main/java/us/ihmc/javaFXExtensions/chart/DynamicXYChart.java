@@ -1,13 +1,13 @@
 package us.ihmc.javaFXExtensions.chart;
 
 import javafx.scene.Group;
-import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.InvisibleNumberAxis;
 import javafx.scene.shape.Rectangle;
 
 public abstract class DynamicXYChart extends DynamicChart
 {
-   private final NumberAxis xAxis;
-   private final NumberAxis yAxis;
+   private final InvisibleNumberAxis xAxis;
+   private final InvisibleNumberAxis yAxis;
 
    protected final Group plotContent = new Group()
    {
@@ -18,7 +18,7 @@ public abstract class DynamicXYChart extends DynamicChart
    };
    private final Rectangle plotContentClip = new Rectangle();
 
-   public DynamicXYChart(NumberAxis xAxis, NumberAxis yAxis)
+   public DynamicXYChart(InvisibleNumberAxis xAxis, InvisibleNumberAxis yAxis)
    {
       this.xAxis = xAxis;
       this.yAxis = yAxis;
