@@ -670,7 +670,7 @@ public class InvisibleNumberAxis extends Region
       // pad min and max by 2%, checking if the range is zero
       final double paddedRange;
       if (range == 0)
-         paddedRange = minValue == 0 ? 2 : Math.abs(minValue) * getRangePadding();
+         paddedRange = minValue == 0 ? getRangePadding() : Math.abs(minValue) * getRangePadding();
       else
          paddedRange = Math.abs(range) * (1.0 + getRangePadding());
 
