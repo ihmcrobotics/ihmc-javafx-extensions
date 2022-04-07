@@ -15,5 +15,6 @@ ihmc {
 }
 
 mainDependencies {
+   api("us.ihmc:euclid:0.17.2")
 }
 
