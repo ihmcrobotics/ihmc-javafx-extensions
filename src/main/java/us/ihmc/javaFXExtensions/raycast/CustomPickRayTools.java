@@ -124,38 +124,33 @@ public class CustomPickRayTools
          return;
       }
 
-      //      final Point3D o = pickRay.origin;
-      //      final double ox = o.getX();
-      //      final double oy = o.getY();
-      //      final double oz = o.getZ();
-      //      final Vector3D d = pickRay.direction;
-      //      final double dx = d.getX();
-      //      final double dy = d.getY();
-      //      final double dz = d.getZ();
-      CustomPickRay pickRay2 = new CustomPickRay();
-      pickRay2.origin.set(pickRay.origin);
-      pickRay2.direction.set(pickRay.direction);
-      pickRay2.nearClip = pickRay.nearClip;
-      pickRay2.farClip = pickRay.farClip;
+      final Point3D o = pickRay.origin;
+      final double ox = o.getX();
+      final double oy = o.getY();
+      final double oz = o.getZ();
+      final Vector3D d = pickRay.direction;
+      final double dx = d.getX();
+      final double dy = d.getY();
+      final double dz = d.getZ();
 
       Transform localToParentTransform = node.getLocalToParentTransform();
       try
       {
-         inverseTransform(localToParentTransform, pickRay2.origin);
-         inverseTransform(localToParentTransform, pickRay2.direction);
+         inverseTransform(localToParentTransform, o);
+         inverseTransform(localToParentTransform, d);
 
          // Delegate to a function which can be overridden by subclasses which
          // actually does the pick. The implementation is markedly different
          // for leaf nodes vs. parent nodes vs. region nodes.
-         pickNodeLocal(node, pickRay2, result);
+         pickNodeLocal(node, pickRay, result);
       }
       catch (SingularMatrixException e)
       {
          // in this case we just don't pick anything
       }
 
-      //      o.set(ox, oy, oz);
-      //      d.set(dx, dy, dz);
+      o.set(ox, oy, oz);
+      d.set(dx, dy, dz);
    }
 
    public static void pickNodeLocal(Node node, CustomPickRay pickRay, CustomPickResultChooser pickResult)
