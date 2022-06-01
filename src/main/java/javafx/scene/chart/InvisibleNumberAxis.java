@@ -369,14 +369,22 @@ public class InvisibleNumberAxis extends Region
    private final double calculateNewScale(double length, double lowerBound, double upperBound)
    {
       final Side side = getEffectiveSide();
+      double invRange = 1.0 / (upperBound - lowerBound);
+      double newScale = length;
+      if (Double.isFinite(invRange))
+         newScale *= invRange;
 
       if (side.isVertical())
+      {
          offset = length;
+         newScale = -newScale;
+      }
       else
+      {
          offset = 0;
+      }
 
-      double invRange = 1.0 / (upperBound - lowerBound);
-      return Double.isFinite(invRange) ? -length * invRange : -length;
+      return newScale;
    }
 
    /**
