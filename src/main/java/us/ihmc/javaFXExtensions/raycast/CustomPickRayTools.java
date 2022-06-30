@@ -107,7 +107,7 @@ public class CustomPickRayTools
       else // set eye at center of viewport and move back so that projection plane is at Z = 0
          eye.set(halfViewWidth, halfViewHeight, -distanceZ);
 
-      double clipScale = direction.length() / (fixedEye ? distanceZ : 1.0);
+      double clipScale = direction.norm() / (fixedEye ? distanceZ : 1.0);
       pickRay.nearClip = nearClip * clipScale;
       pickRay.farClip = farClip * clipScale;
 
