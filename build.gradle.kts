@@ -6,7 +6,7 @@ plugins {
 
 ihmc {
    group = "us.ihmc"
-   version = "17-0.1.3"
+   version = "17-0.2.0"
    vcsUrl = "https://github.com/ihmcrobotics/ihmc-javafx-extensions"
    openSource = true
    
