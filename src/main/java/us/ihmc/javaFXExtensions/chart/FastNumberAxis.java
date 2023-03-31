@@ -1,4 +1,4 @@
-package javafx.scene.chart;
+package us.ihmc.javaFXExtensions.chart;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +8,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.BooleanPropertyBase;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.DoublePropertyBase;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
@@ -20,11 +21,14 @@ import javafx.css.StyleableProperty;
 import javafx.css.converter.EnumConverter;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
+import javafx.scene.chart.FastAxisBase;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.util.StringConverter;
 
-public class InvisibleNumberAxis extends Region
+public class FastNumberAxis extends Region implements FastAxisBase
 {
-
    // -------------- PRIVATE FIELDS -----------------------------------------------------------------------------------
 
    private Orientation effectiveOrientation;
@@ -33,7 +37,7 @@ public class InvisibleNumberAxis extends Region
    boolean rangeValid = false;
 
    /** The side of the plot which this axis is being drawn on */
-   private ObjectProperty<Side> side = new StyleableObjectProperty<Side>()
+   private ObjectProperty<Side> side = new StyleableObjectProperty<>()
    {
       @Override
       protected void invalidated()
@@ -48,7 +52,7 @@ public class InvisibleNumberAxis extends Region
       }
 
       @Override
-      public CssMetaData<InvisibleNumberAxis, Side> getCssMetaData()
+      public CssMetaData<FastNumberAxis, Side> getCssMetaData()
       {
          return StyleableProperties.SIDE;
       }
@@ -56,7 +60,7 @@ public class InvisibleNumberAxis extends Region
       @Override
       public Object getBean()
       {
-         return InvisibleNumberAxis.this;
+         return FastNumberAxis.this;
       }
 
       @Override
@@ -66,22 +70,25 @@ public class InvisibleNumberAxis extends Region
       }
    };
 
+   @Override
    public final Side getSide()
    {
       return side.get();
    }
 
+   @Override
    public final void setSide(Side value)
    {
       side.set(value);
    }
 
+   @Override
    public final ObjectProperty<Side> sideProperty()
    {
       return side;
    }
 
-   private final Side getEffectiveSide()
+   protected final Side getEffectiveSide()
    {
       final Side side = getSide();
       if (side == null || side.isVertical() && effectiveOrientation == Orientation.HORIZONTAL
@@ -110,7 +117,7 @@ public class InvisibleNumberAxis extends Region
       @Override
       public Object getBean()
       {
-         return InvisibleNumberAxis.this;
+         return FastNumberAxis.this;
       }
 
       @Override
@@ -120,16 +127,19 @@ public class InvisibleNumberAxis extends Region
       }
    };
 
+   @Override
    public final boolean isAutoRanging()
    {
       return autoRanging.get();
    }
 
+   @Override
    public final void setAutoRanging(boolean value)
    {
       autoRanging.set(value);
    }
 
+   @Override
    public final BooleanProperty autoRangingProperty()
    {
       return autoRanging;
@@ -143,7 +153,7 @@ public class InvisibleNumberAxis extends Region
     *
     * @return true if current range calculations are valid
     */
-   private final boolean isRangeValid()
+   protected final boolean isRangeValid()
    {
       return rangeValid;
    }
@@ -152,7 +162,7 @@ public class InvisibleNumberAxis extends Region
     * Mark the current range invalid, this will cause anything that depends on the range to be
     * recalculated on the next layout.
     */
-   private final void invalidateRange()
+   protected final void invalidateRange()
    {
       rangeValid = false;
    }
@@ -173,6 +183,7 @@ public class InvisibleNumberAxis extends Region
     * that really need layout to be updated. So we only want to request layout then, not on any child
     * change.
     */
+   @Override
    public void requestAxisLayout()
    {
       super.requestLayout();
@@ -287,7 +298,7 @@ public class InvisibleNumberAxis extends Region
       @Override
       public Object getBean()
       {
-         return InvisibleNumberAxis.this;
+         return FastNumberAxis.this;
       }
 
       @Override
@@ -297,16 +308,19 @@ public class InvisibleNumberAxis extends Region
       }
    };
 
+   @Override
    public final double getUpperBound()
    {
       return upperBound.get();
    }
 
+   @Override
    public final void setUpperBound(double value)
    {
       upperBound.set(value);
    }
 
+   @Override
    public final DoubleProperty upperBoundProperty()
    {
       return upperBound;
@@ -331,7 +345,7 @@ public class InvisibleNumberAxis extends Region
       @Override
       public Object getBean()
       {
-         return InvisibleNumberAxis.this;
+         return FastNumberAxis.this;
       }
 
       @Override
@@ -341,16 +355,19 @@ public class InvisibleNumberAxis extends Region
       }
    };
 
+   @Override
    public final double getLowerBound()
    {
       return lowerBound.get();
    }
 
+   @Override
    public final void setLowerBound(double value)
    {
       lowerBound.set(value);
    }
 
+   @Override
    public final DoubleProperty lowerBoundProperty()
    {
       return lowerBound;
@@ -425,6 +442,7 @@ public class InvisibleNumberAxis extends Region
     *
     * @param data The current set of all data that needs to be plotted on this axis
     */
+   @Override
    public void invalidateRange(List<Number> data)
    {
       if (data.isEmpty())
@@ -455,6 +473,7 @@ public class InvisibleNumberAxis extends Region
     *
     * @param data The current set of all data that needs to be plotted on this axis
     */
+   @Override
    public void invalidateRange(double[] data)
    {
       if (data.length == 0)
@@ -485,6 +504,7 @@ public class InvisibleNumberAxis extends Region
     *
     * @param data The current set of all data that needs to be plotted on this axis
     */
+   @Override
    public void invalidateRange(double minValue, double maxValue)
    {
       dataMinValue = minValue;
@@ -589,7 +609,7 @@ public class InvisibleNumberAxis extends Region
       @Override
       public Object getBean()
       {
-         return InvisibleNumberAxis.this;
+         return FastNumberAxis.this;
       }
 
       @Override
@@ -619,7 +639,7 @@ public class InvisibleNumberAxis extends Region
    /**
     * Creates an auto-ranging InvisibleNumberAxis.
     */
-   public InvisibleNumberAxis()
+   public FastNumberAxis()
    {
       getStyleClass().setAll("axis");
    }
@@ -630,9 +650,8 @@ public class InvisibleNumberAxis extends Region
     *
     * @param lowerBound The lower bound for this axis, i.e. min plottable value
     * @param upperBound The upper bound for this axis, i.e. max plottable value
-    * @param tickUnit   The tick unit, i.e. space between tickmarks
     */
-   public InvisibleNumberAxis(double lowerBound, double upperBound, double tickUnit)
+   public FastNumberAxis(double lowerBound, double upperBound)
    {
       this();
       setAutoRanging(false);
@@ -692,19 +711,18 @@ public class InvisibleNumberAxis extends Region
 
    private static class StyleableProperties
    {
-      private static final CssMetaData<InvisibleNumberAxis, Side> SIDE = new CssMetaData<InvisibleNumberAxis, Side>("-fx-side",
-                                                                                                                    new EnumConverter<Side>(Side.class))
+      private static final CssMetaData<FastNumberAxis, Side> SIDE = new CssMetaData<>("-fx-side", new EnumConverter<>(Side.class))
       {
 
          @Override
-         public boolean isSettable(InvisibleNumberAxis n)
+         public boolean isSettable(FastNumberAxis n)
          {
             return n.side == null || !n.side.isBound();
          }
 
          @SuppressWarnings("unchecked") // sideProperty() is StyleableProperty<Side>
          @Override
-         public StyleableProperty<Side> getStyleableProperty(InvisibleNumberAxis n)
+         public StyleableProperty<Side> getStyleableProperty(FastNumberAxis n)
          {
             return (StyleableProperty<Side>) n.sideProperty();
          }
@@ -713,7 +731,7 @@ public class InvisibleNumberAxis extends Region
       private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
       static
       {
-         final List<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<CssMetaData<? extends Styleable, ?>>(Region.getClassCssMetaData());
+         final List<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<>(Region.getClassCssMetaData());
          styleables.add(SIDE);
          STYLEABLES = Collections.unmodifiableList(styleables);
       }
@@ -748,4 +766,99 @@ public class InvisibleNumberAxis extends Region
    private static final PseudoClass LEFT_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass("left");
    /** pseudo-class indicating this is a vertical Right side InvisibleNumberAxis. */
    private static final PseudoClass RIGHT_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass("right");
+
+   @Override
+   public Region asRegion()
+   {
+      return this;
+   }
+
+   @Override
+   public DoubleProperty tickUnitProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public BooleanProperty minorTickVisibleProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public ObjectProperty<StringConverter<Number>> tickLabelFormatterProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public DoubleProperty minorTickLengthProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public IntegerProperty minorTickCountProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public ObjectProperty<String> labelProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public BooleanProperty tickMarkVisibleProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public DoubleProperty tickLengthProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public BooleanProperty tickLabelsVisibleProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public ObjectProperty<Font> tickLabelFontProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public ObjectProperty<Paint> tickLabelFillProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public DoubleProperty tickLabelGapProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public BooleanProperty animatedProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public DoubleProperty tickLabelRotationProperty()
+   {
+      return null;
+   }
+
+   @Override
+   public void setEffectiveOrientation(Orientation orientation)
+   {
+   }
 }
