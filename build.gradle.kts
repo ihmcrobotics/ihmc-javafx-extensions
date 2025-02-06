@@ -13,11 +13,11 @@ ihmc {
 }
 
 mainDependencies {
-   var javaFXVersion = "17.0.2"
+   var javaFXVersion = "17.0.8"
    api(ihmc.javaFXModule("base", javaFXVersion))
    api(ihmc.javaFXModule("controls", javaFXVersion))
    api(ihmc.javaFXModule("graphics", javaFXVersion))
    
-   api("us.ihmc:euclid:0.20.0")
+   api("us.ihmc:euclid:0.22.3")
 }
 
