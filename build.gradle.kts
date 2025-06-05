@@ -18,6 +18,6 @@ mainDependencies {
    api(ihmc.javaFXModule("controls", javaFXVersion))
    api(ihmc.javaFXModule("graphics", javaFXVersion))
    
-   api("us.ihmc:euclid:0.22.3")
+   api("us.ihmc:euclid:0.22.5")
 }
 
